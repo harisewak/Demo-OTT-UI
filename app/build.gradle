@@ -3,6 +3,7 @@ plugins {
     id 'kotlin-android'
     id "org.jetbrains.kotlin.kapt"
     id "dagger.hilt.android.plugin"
+    id "com.google.gms.google-services"
 }
 
 android {
@@ -39,9 +40,14 @@ android {
 }
 
 dependencies {
+    // firebase
+    implementation platform('com.google.firebase:firebase-bom:28.2.1')
+    implementation 'com.google.firebase:firebase-analytics'
+
     // coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0-alpha02")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.0-alpha02")
 
     // hilt
     implementation("com.google.dagger:hilt-android:$hilt_version")

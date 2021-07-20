@@ -7,6 +7,7 @@
     tools:context=".view.MainActivity">
 
     <androidx.appcompat.widget.Toolbar
+        app:navigationIcon="?attr/homeAsUpIndicator"
         android:id="@+id/toolbar"
         android:layout_width="0dp"
         android:layout_height="?attr/actionBarSize"
@@ -19,6 +20,7 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
     <androidx.recyclerview.widget.RecyclerView
+        android:padding="4dp"
         android:id="@+id/list"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -26,8 +28,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-        app:spanCount="3"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -22,6 +22,22 @@ fun getPages(context: Context): List<Page> {
     return result
 }
 
+fun getPage(context: Context, pageNum: Int) = when (pageNum) {
+    1 -> read(context, "page1.json").toJson().toPage()
+    2 -> read(context, "page2.json").toJson().toPage()
+    3 -> read(context, "page3.json").toJson().toPage()
+    else -> throw Exception("Page number doesn't exist")
+}
+
+fun getContent(context: Context): List<Content> {
+    val result = arrayListOf<Content>()
+    val pages = getPages(context)
+    pages.forEach { page ->
+        result.addAll(page.contents)
+    }
+    return result
+}
+
 private fun read(context: Context, fileName: String): String {
 
     return try {
