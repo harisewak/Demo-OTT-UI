@@ -11,7 +11,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DiagnalAssignment">
         <activity
-            android:name=".view.MainActivity"
+            android:name=".view.MovieListActivity"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

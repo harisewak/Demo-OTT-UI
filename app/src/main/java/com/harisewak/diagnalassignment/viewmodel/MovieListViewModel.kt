@@ -15,7 +15,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MovieListViewModel @Inject constructor(private val repository: MovieRepository, @ApplicationContext context: Context): ViewModel() {
+class MovieListViewModel @Inject constructor(
+    private val repository: MovieRepository
+) : ViewModel() {
 
     private var _movieList: MutableLiveData<List<Content>> = MutableLiveData()
 
@@ -25,26 +27,19 @@ class MovieListViewModel @Inject constructor(private val repository: MovieReposi
 
     val pageTitle: LiveData<String> = _pageTitle
 
-    @Inject lateinit var moviesDb: MoviesDb
+    @Inject
+    lateinit var moviesDb: MoviesDb
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
-            val movieList = repository.getMovies()
-            _movieList.postValue(movieList)
-            _pageTitle.postValue(repository.pageTitle)
-        }
+        getMovies()
     }
+
 
     fun listScrolled(lastVisibleItemPosition: Int, totalItemCount: Int, query: String) {
         val endOfPage = (totalItemCount - lastVisibleItemPosition) < VISIBLE_THRESHOLD
-//        if (visibleItemCount + lastVisibleItemPosition + VISIBLE_THRESHOLD >= totalItemCount) {
         if (endOfPage) {
             debug("endOfPage: $endOfPage")
-            viewModelScope.launch(Dispatchers.IO) {
-                val movieList = repository.getMovies(query)
-                _movieList.postValue(movieList)
-                _pageTitle.postValue(repository.pageTitle)
-            }
+            getMovies(query)
         }
     }
 

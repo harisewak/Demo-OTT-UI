@@ -10,12 +10,7 @@ data class Page @JvmOverloads constructor(
     val pageSize: String,
     @Ignore var contents: List<Content> = arrayListOf(),
     @PrimaryKey(autoGenerate = true) val pageId: Long
-//    @Ignore val contentItem: ContentItem? = null
 )
-
-//data class ContentItem(
-//    val list: List<Content>
-//)
 
 @Entity
 data class Content(

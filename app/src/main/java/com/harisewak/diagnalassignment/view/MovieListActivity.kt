@@ -17,7 +17,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MovieListActivity : AppCompatActivity() {
     private lateinit var viewModel: MovieListViewModel
     private lateinit var mMovieListAdapter: MovieListAdapter
 
@@ -99,7 +99,14 @@ class MainActivity : AppCompatActivity() {
         super.onConfigurationChanged(newConfig)
         debug("onConfigurationChanged: ${newConfig.orientation}")
         binding.list.removeAllViews()
-        initAdapter()
+        val retainedList = mMovieListAdapter.getList()
+        val isPortrait = resources.configuration.orientation == 1
+        val spanCount = if (isPortrait) 3 else 7
+        val gridLayoutManager = GridLayoutManager(applicationContext, spanCount)
+        binding.list.layoutManager = gridLayoutManager
+        mMovieListAdapter = MovieListAdapter()
+        mMovieListAdapter.addAll(retainedList)
+        binding.list.adapter = mMovieListAdapter
     }
 
 
@@ -204,6 +211,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         override fun getItemCount() = movieList.size
+
+        fun getList(): List<Content> = movieList
 
         inner class MovieListViewHolder(private val binding: ListItemBinding) :
             RecyclerView.ViewHolder(

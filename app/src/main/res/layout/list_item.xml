@@ -35,6 +35,7 @@
         tools:text="Movie Name" />
 
     <TextView
+        android:visibility="gone"
         android:id="@+id/tv_serial_num"
         android:background="@color/black"
         android:padding="4dp"

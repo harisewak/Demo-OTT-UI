@@ -10,7 +10,6 @@ import javax.inject.Inject
 
 class MovieRepository @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val moviesDb: MoviesDb
 ) {
     private var curPage = 1
     private val movieList = arrayListOf<Content>()
@@ -25,14 +24,12 @@ class MovieRepository @Inject constructor(
             curPage = 1
             movieList.clear()
         }
-//        return moviesDb.pageDao().getPage("1").contents
         if (curPage <= MAX_PAGES) {
             val page = getPage(context, curPage)
             pageTitle = page.title
             val filteredList = page.contents.filter {
                 it.name.contains(query, ignoreCase = true)
             }
-//            movieList.addAll(filteredList)
             curPage += 1
             return filteredList
         } else {
