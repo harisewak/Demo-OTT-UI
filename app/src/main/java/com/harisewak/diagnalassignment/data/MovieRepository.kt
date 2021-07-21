@@ -2,10 +2,9 @@ package com.harisewak.diagnalassignment.data
 
 import android.content.Context
 import com.harisewak.diagnalassignment.MAX_PAGES
+import com.harisewak.diagnalassignment.util.debug
 import com.harisewak.diagnalassignment.util.getPage
-import com.harisewak.diagnalassignment.util.getPages
 import dagger.hilt.android.qualifiers.ApplicationContext
-import java.lang.Exception
 import javax.inject.Inject
 
 class MovieRepository @Inject constructor(
@@ -18,6 +17,7 @@ class MovieRepository @Inject constructor(
     private set
 
     suspend fun getMovies(newQuery: String = ""): List<Content> {
+        debug("MovieRepository.getMovies -> Current thread: ${Thread.currentThread()}")
         // when queries change, start fetching from page 1
         if (newQuery != query) {
             query = newQuery

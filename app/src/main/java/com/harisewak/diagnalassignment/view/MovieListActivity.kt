@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.*
+import com.harisewak.diagnalassignment.LANDSCAPE_COUNT
+import com.harisewak.diagnalassignment.PORTRAIT_COUNT
 import com.harisewak.diagnalassignment.R
 import com.harisewak.diagnalassignment.data.Content
 import com.harisewak.diagnalassignment.databinding.ActivityMainBinding
@@ -18,7 +20,9 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MovieListActivity : AppCompatActivity() {
+
     private lateinit var viewModel: MovieListViewModel
+
     private lateinit var mMovieListAdapter: MovieListAdapter
 
     private lateinit var binding: ActivityMainBinding
@@ -30,9 +34,10 @@ class MovieListActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.toolbar
+
         setSupportActionBar(binding.toolbar)
 
         binding.toolbar.setNavigationOnClickListener {
@@ -41,47 +46,23 @@ class MovieListActivity : AppCompatActivity() {
 
         viewModel = ViewModelProvider(this).get(MovieListViewModel::class.java)
 
-        viewModel.pageTitle.observe(this) {
-            binding.toolbar.setTitle(it)
-        }
+        addObservers()
 
         initAdapter()
 
-    }
-
-    private fun setupScrollListener() {
-
-        val layoutManager = binding.list.layoutManager as GridLayoutManager
-
-        binding.list.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-
-                val totalItemCount = layoutManager.itemCount
-                val visibleItemCount = layoutManager.childCount
-                val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
-
-                viewModel.listScrolled(visibleItemCount, lastVisibleItem, query)
-            }
-        })
-    }
-
-
-    private fun initAdapter() {
-
-        binding.list.apply {
-            val isPortrait = resources.configuration.orientation == 1
-            val spanCount = if (isPortrait) 3 else 7
-            val gridLayoutManager = GridLayoutManager(applicationContext, spanCount)
-            layoutManager = gridLayoutManager
-            mMovieListAdapter = MovieListAdapter()
-            adapter = mMovieListAdapter
-        }
-
         setupScrollListener()
 
+    }
+
+    private fun addObservers() {
+
+        viewModel.pageTitle.observe(this) {
+            debug("MovieListActivity.addObservers.pageTitle -> Current thread: ${Thread.currentThread()}")
+            binding.toolbar.title = it
+        }
+
         viewModel.movieList.observe(this) { movieList ->
+            debug("MovieListActivity.addObservers.movieList -> Current thread: ${Thread.currentThread()}")
             // sending empty list when all pages are exhausted
             if (movieList.isNotEmpty()) {
                 if (isListRefreshed) {
@@ -95,18 +76,45 @@ class MovieListActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupScrollListener() {
+
+        val layoutManager = binding.list.layoutManager as GridLayoutManager
+
+        binding.list.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+
+                val visibleItemCount = layoutManager.childCount
+                val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
+
+                viewModel.listScrolled(visibleItemCount, lastVisibleItem, query)
+            }
+        })
+    }
+
+    private fun initAdapter(movieList: List<Content> = listOf<Content>()) {
+
+        binding.list.apply {
+            val isPortrait = resources.configuration.orientation == 1
+            val spanCount = if (isPortrait) PORTRAIT_COUNT else LANDSCAPE_COUNT
+            val gridLayoutManager = GridLayoutManager(applicationContext, spanCount)
+            layoutManager = gridLayoutManager
+            mMovieListAdapter = MovieListAdapter()
+
+            if (movieList.isNotEmpty()) mMovieListAdapter.addAll(movieList)
+
+            adapter = mMovieListAdapter
+        }
+
+    }
+
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         debug("onConfigurationChanged: ${newConfig.orientation}")
         binding.list.removeAllViews()
-        val retainedList = mMovieListAdapter.getList()
-        val isPortrait = resources.configuration.orientation == 1
-        val spanCount = if (isPortrait) 3 else 7
-        val gridLayoutManager = GridLayoutManager(applicationContext, spanCount)
-        binding.list.layoutManager = gridLayoutManager
-        mMovieListAdapter = MovieListAdapter()
-        mMovieListAdapter.addAll(retainedList)
-        binding.list.adapter = mMovieListAdapter
+        val existingItems = mMovieListAdapter.getList()
+        initAdapter(existingItems)
     }
 
 
@@ -126,35 +134,26 @@ class MovieListActivity : AppCompatActivity() {
 
             override fun onQueryTextSubmit(query: String?): Boolean {
                 searchView.clearFocus()
-
                 return false
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-
                 filterMovieItems(newText)
-
                 return false
             }
 
             private fun filterMovieItems(newText: String?) {
+
                 newText?.let {
 
                     if (newText.length > 2) {
                         isListRefreshed = true
                         query = newText
                         viewModel.getMovies(query)
-//                        viewModel.movieList
-//                        val filteredList = viewModel.movieList.value?.filter {
-//                            it.name.contains(newText, ignoreCase = true)
-//                        }
-//                        mMovieListAdapter.clear()
-//                        mMovieListAdapter.addAll(filteredList!!)
+
                     } else if (newText.isEmpty()) {
                         isListRefreshed = true
                         query = ""
-//                        mMovieListAdapter.clear()
-//                        mMovieListAdapter.addAll(viewModel.movieList.value!!)
                         viewModel.getMovies(query)
                     }
                 }

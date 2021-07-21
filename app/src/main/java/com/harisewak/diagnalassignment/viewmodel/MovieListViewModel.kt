@@ -45,6 +45,7 @@ class MovieListViewModel @Inject constructor(
 
     fun getMovies(query: String = "") {
         viewModelScope.launch(Dispatchers.IO) {
+            debug("MovieListViewModel.getMovies -> Current thread: ${Thread.currentThread()}")
             val movieList = repository.getMovies(query)
             _movieList.postValue(movieList)
             _pageTitle.postValue(repository.pageTitle)
